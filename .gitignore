@@ -1,0 +1,42 @@
+# Ignorar todo por defecto para publicar solo RestauranteApp.
+/*
+
+# Archivos raiz que si forman parte del repositorio.
+!.gitignore
+!README.md
+!requirements.txt
+!.env.example
+!01_restaurante_supabase.sql
+!02_restaurante_useradmin.sql
+
+# Aplicacion principal.
+!restaurante_app/
+!restaurante_app/**
+
+# Nunca subir configuracion local, reportes ni artefactos generados.
+.env
+reportes_generados/
+laboratorio-semana11/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+ENV/
+dist/
+build/
+*.spec
+
+# Caches y metadatos locales.
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.idea/
+.vscode/
+*.log
+Thumbs.db
+Desktop.ini

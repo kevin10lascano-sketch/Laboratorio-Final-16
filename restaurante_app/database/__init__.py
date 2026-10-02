@@ -1,0 +1,1 @@
+"""Acceso centralizado a Supabase."""
