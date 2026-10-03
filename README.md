@@ -11,7 +11,6 @@ Transformar la aplicacion base de biblioteca en una aplicacion de restaurante co
 - Python 3
 - Tkinter y ttk
 - Supabase Python Client
-- python-dotenv
 - ReportLab
 - pathlib, dataclasses y type hints
 
@@ -38,7 +37,6 @@ restaurante_app/
 reportes_generados/
 01_restaurante_supabase.sql
 02_restaurante_useradmin.sql
-.env.example
 requirements.txt
 ```
 
@@ -93,8 +91,8 @@ Esta transformacion es importante porque muestra como una aplicacion local puede
 1. Python 3 instalado.
 2. Proyecto Supabase creado.
 3. Script `01_restaurante_supabase.sql` ejecutado en el SQL Editor de Supabase.
-4. Usuario Auth creado desde Supabase Dashboard.
-5. Perfil asociado en la tabla `perfiles`.
+4. Usuario administrador inicial creado desde Supabase Dashboard.
+5. Perfil administrador asociado en la tabla `perfiles`.
 
 ## Archivos del repositorio
 
@@ -103,11 +101,10 @@ Este repositorio debe contener solo el proyecto principal:
 - `restaurante_app/`
 - `README.md`
 - `requirements.txt`
-- `.env.example`
 - `01_restaurante_supabase.sql`
 - `02_restaurante_useradmin.sql`
 
-No se deben subir `.env`, `reportes_generados/`, entornos virtuales, caches, builds ni la carpeta del laboratorio web.
+No se deben subir configuraciones locales, `reportes_generados/`, entornos virtuales, caches, builds ni la carpeta del laboratorio web.
 
 ## Instalacion
 
@@ -121,25 +118,26 @@ pip install -r requirements.txt
 
 ## Configuracion Supabase
 
-Copia `.env.example` como `.env` y completa:
+Abre `restaurante_app/config/settings.py` y completa:
 
-```env
-SUPABASE_URL=https://tu-proyecto.supabase.co
-SUPABASE_PUBLISHABLE_KEY=tu_publishable_key
+```python
+SUPABASE_URL = "https://tu-proyecto.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xxxxx"
 ```
 
 No uses `service_role`, secret keys ni contrasenas dentro del codigo fuente.
+
+La publishable key puede ir en una aplicacion cliente. La seguridad real no depende de ocultar esa clave, sino de Supabase Auth, RLS y Policies. Nunca coloques `service_role`, admin secret ni claves privadas dentro del codigo o del ejecutable.
 
 ## Como se conecta con Supabase
 
 El flujo de conexion es:
 
-1. `.env` guarda `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY`.
-2. `config/settings.py` lee esas variables con `python-dotenv`.
-3. `database/supabase_cliente.py` crea un unico cliente Supabase.
-4. `main.py` entrega ese cliente a los servicios.
-5. Los servicios consultan tablas o ejecutan RPC.
-6. Las vistas Tkinter muestran los resultados y capturan acciones del usuario.
+1. `config/settings.py` guarda `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY`.
+2. `database/supabase_cliente.py` crea un unico cliente Supabase.
+3. `main.py` entrega ese cliente a los servicios.
+4. Los servicios consultan tablas o ejecutan RPC.
+5. Las vistas Tkinter muestran los resultados y capturan acciones del usuario.
 
 Ejemplo conceptual:
 
@@ -202,7 +200,7 @@ Las restricciones visuales no reemplazan RLS. La seguridad real sigue en Supabas
 - Inventario con entradas y ajustes auditados.
 - Pedidos con detalle y confirmacion por RPC `confirmar_pedido`.
 - Caja con pago por RPC `registrar_pago_pedido`.
-- Empleados sin creacion de cuentas Auth desde la app.
+- Empleados con registro de datos y creacion/vinculacion de cuenta Auth desde el panel administrativo.
 - Reportes PDF con ReportLab.
 
 ## Flujo operativo
@@ -235,6 +233,8 @@ Los PDFs se guardan en:
 reportes_generados/
 ```
 
+En desarrollo se crea en la raiz del proyecto. En el `.exe` se crea junto a `dist\RestauranteApp.exe`, evitando escribir dentro del temporal de PyInstaller.
+
 Nombres esperados:
 
 - `pedido_PED-000001.pdf`
@@ -246,6 +246,33 @@ Si el archivo ya existe, la app agrega un sufijo para no sobrescribirlo.
 ## Assets
 
 El logo heredado se conserva en `restaurante_app/assets/logo/`. Si no armoniza completamente con la paleta restaurante, se recomienda redisenarlo manualmente en una fase posterior. La lista de iconos sugeridos esta en `restaurante_app/assets/ICONOS_REQUERIDOS.md`.
+
+## Exportar a RestauranteApp.exe
+
+Desde la raiz del repositorio:
+
+```powershell
+pip install pyinstaller
+pyinstaller --onefile --windowed --name RestauranteApp --add-data "restaurante_app\assets;assets" restaurante_app\main.py
+```
+
+Resultado esperado:
+
+```text
+Laboratorio-Final-16/
+├── restaurante_app/
+├── dist/
+│   └── RestauranteApp.exe
+└── reportes_generados/      # en desarrollo
+```
+
+Al ejecutar el `.exe`, el flujo conceptual es:
+
+```text
+RestauranteApp.exe -> Internet -> Supabase API -> Supabase Auth -> RLS/Policies -> PostgreSQL
+```
+
+Para distribuir a estudiantes, entrega `dist\RestauranteApp.exe`. Deben tener conexion a Internet y permisos para que Windows permita ejecutar una app descargada. Si el antivirus bloquea el archivo o falta alguna dependencia interna de PyInstaller, vuelve a generar el ejecutable desde un entorno limpio y prueba en otra PC.
 
 ## Limitaciones academicas
 

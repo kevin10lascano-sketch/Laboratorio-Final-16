@@ -1,18 +1,34 @@
+import sys
 from pathlib import Path
-
-from dotenv import load_dotenv
-import os
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 PROJECT_DIR = BASE_DIR.parent
-ASSETS_DIR = BASE_DIR / "assets"
-REPORTES_DIR = PROJECT_DIR / "reportes_generados"
 
-load_dotenv(PROJECT_DIR / ".env")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip()
-SUPABASE_PUBLISHABLE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY", "").strip()
+def es_ejecutable() -> bool:
+    return bool(getattr(sys, "frozen", False))
+
+
+def ruta_recursos() -> Path:
+    if es_ejecutable():
+        return Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+    return BASE_DIR
+
+
+def ruta_salida_usuario() -> Path:
+    if es_ejecutable():
+        return Path(sys.executable).resolve().parent
+    return PROJECT_DIR
+
+
+ASSETS_DIR = ruta_recursos() / "assets"
+REPORTES_DIR = ruta_salida_usuario() / "reportes_generados"
+
+# Completar con los datos de Supabase antes de ejecutar o generar el .exe.
+# La publishable key esta pensada para clientes publicos; nunca usar service_role aqui.
+SUPABASE_URL = "https://sukksxlrcpdrchmqprrr.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_HG0NdDtfD6JApCcJMQPKJQ_AMq_k6n7"
 
 APP_NAME = "RestauranteApp"
 IMPUESTO_POR_DEFECTO = 0.0

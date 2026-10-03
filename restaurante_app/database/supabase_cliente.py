@@ -15,7 +15,7 @@ def obtener_cliente_supabase() -> Client:
 
     if not SUPABASE_URL or not SUPABASE_PUBLISHABLE_KEY:
         raise ConfiguracionSupabaseError(
-            "Configure SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en el archivo .env."
+            "Configure SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en config/settings.py antes de ejecutar o generar el .exe."
         )
 
     if _cliente is None:
